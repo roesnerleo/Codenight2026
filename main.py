@@ -2,8 +2,14 @@ import cv2
 import mediapipe as mp
 import time
 
-# Webcam initialisieren
+# Inizialize Cam
 cap = cv2.VideoCapture(0)
+
+# config MediaPipe
+BaseOptions = mp.tasks.BaseOptions
+HandLandmarker = mp.tasks.vision.HandLandmarker
+HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
+VisionRunningMode = mp.tasks.vision.RunningMode
 
 while True:
 
@@ -17,13 +23,13 @@ while True:
     # flip Image 
     frame = cv2.flip(frame, 1)
 
-    # Bild anzeigen
+    # show Image
     cv2.imshow("Hand Tracking", frame)
 
     # close
     if cv2.waitKey(1) & 0xFF == ord('esc'):
         break
 
-# Ressourcen freigeben
+# release Recources
 cap.release()
 cv2.destroyAllWindows()
