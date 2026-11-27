@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 import time
+import math
 
 # Inizialize Cam
 cap = cv2.VideoCapture(0)
@@ -10,6 +11,7 @@ BaseOptions = mp.tasks.BaseOptions
 HandLandmarker = mp.tasks.vision.HandLandmarker
 HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
+
 
 # ModelPath
 MODEL_PATH = "models/hand_landmarker.task"
@@ -27,13 +29,59 @@ CONNECTIONS = [
 #Counter for detection over time
 counter = 0
 
+# queue Point 12
+queue12 = [[0, 0],[0, 0]]
+
+# reset var for ready check
+ready = False
+
+# flick vars
+gate = 0.2
+flickUp = 0
+flickDown = 0
+FlickLeft = 0
+FlickRight = 0
+
+def flickcheck():
+    queue12[0] = queue12[1]
+    queue12[1] = [round(landmark.x, 3), round(landmark.y, 3)]
+    
+    xDif = queue12[0][0] - queue12[1][0]
+    yDif = queue12[0][1] - queue12[1][1]
+    
+    if yDif > gate:
+        flickUp = 1
+    else:
+        flickUp = 0
+    
+    if yDif < -gate:
+        flickDown = 1
+    else:
+        flickDown = 0
+    
+    if xDif > gate:
+        flickLeft = 1
+    else:
+        flickLeft = 0
+    
+    if xDif < -gate:
+        flickRight = 1
+    else:
+        flickRight = 0
+    
+    print("Up: " + str(flickUp))
+    print("Down: " + str(flickDown))
+    print("Left: " + str(flickLeft))
+    print("Right: " + str(flickRight))
+                    
+
 # Settings 
 options = HandLandmarkerOptions(
     base_options=BaseOptions(
         model_asset_path=MODEL_PATH
     ),
     running_mode=VisionRunningMode.VIDEO,
-    num_hands=2
+    num_hands=1
 )
 
 # start Tracking
@@ -116,25 +164,26 @@ with HandLandmarker.create_from_options(options) as landmarker:
             for hand in result.hand_landmarks:
 
                 # read Mark Coordinates
-                landmark = hand[0]
+                landmark = hand[12]
         
-                print("X:", landmark.x)
-                print("Y:", landmark.y)
+
+                if counter == 0:
+
+                    flickcheck()   
 
             pass
 
         else:
-
-            print("noHandFound")
+            pass
+           # print("noHandFound")
 
 
         # count
-        if counter < 10:
+        if counter < 1:
             counter += 1
         else: 
             counter = 0
 
-        print(counter)
 
 
 # release resources
