@@ -24,6 +24,9 @@ CONNECTIONS = [
     (0, 17)
 ]
 
+#Counter for detection over time
+counter = 0
+
 # Settings 
 options = HandLandmarkerOptions(
     base_options=BaseOptions(
@@ -103,9 +106,36 @@ with HandLandmarker.create_from_options(options) as landmarker:
         # show Image
         cv2.imshow("MediaPipe Hand Tracking", frame)
 
-        # Beenden mit Q
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        # ESC
+        if cv2.waitKey(1) & 0xFF == 27:
             break
+
+
+        if result.hand_landmarks:
+
+            for hand in result.hand_landmarks:
+
+                # read Mark Coordinates
+                landmark = hand[0]
+        
+                print("X:", landmark.x)
+                print("Y:", landmark.y)
+
+            pass
+
+        else:
+
+            print("noHandFound")
+
+
+        # count
+        if counter < 10:
+            counter += 1
+        else: 
+            counter = 0
+
+        print(counter)
+
 
 # release resources
 cap.release()
