@@ -2,7 +2,7 @@ import cv2
 import mediapipe as mp
 import time
 import math
-import flick
+from . import flick
 
 # Inizialize Cam
 cap = cv2.VideoCapture(0)

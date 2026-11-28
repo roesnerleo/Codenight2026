@@ -1,0 +1,21 @@
+[project]
+name = "codenight2026"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Franz", email = "steinmannfranz@gmx.de" }
+]
+requires-python = ">=3.15"
+dependencies = [
+    "mediapipe>=1.2.3",
+    "opencv-python>=5.1.0.95",
+    "pyautogui>=0.9.54",
+]
+
+[project.scripts]
+codenight2026 = "codenight2026:main"
+
+[build-system]
+requires = ["uv_build>=0.13.10,<0.14.0"]
+build-backend = "uv_build"
