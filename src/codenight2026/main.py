@@ -116,7 +116,7 @@ with HandLandmarker.create_from_options(options) as landmarker:
                         -1
                     )
 
-        gesten.detect_gesture
+                
 
         # show Image
         cv2.imshow("MediaPipe Hand Tracking", frame)
@@ -128,24 +128,25 @@ with HandLandmarker.create_from_options(options) as landmarker:
             for hand in result.hand_landmarks:
 
                 # read Mark Coordinates
-                landmark = hand[12]
+                landmark = hand[0]
         
 
                 if counter == 0:
 
                     queue12[0] = queue12[1]
                     queue12[1] = [round(landmark.x, 3), round(landmark.y, 3)]
-                    flick.flickcheck(queue12)   
+                    flick.flickcheck(queue12)
+                    gesten.detect_gesture(hand)
 
             pass
 
         else:
             pass
-           # print("noHandFound")
+           # print("noHandFound")w
 
 
         # count
-        if counter < 1:
+        if counter < 0:
             counter += 1
         else: 
             counter = 0

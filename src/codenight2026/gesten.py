@@ -31,12 +31,12 @@ def detect_gesture(hand):
     pinky  = extended(hand, 20, 18)
     thumb  = extended(hand, 4, 3)
 
-    if index and not (middle or ring or pinky):
-        if zeigefinger == 0:
-            pyautogui.press('q')
-            zeigefinger = 1
-    else:
-        zeigefinger = 0
+    #if index and not (middle or ring or pinky):
+    #    if zeigefinger == 0:
+    #            pyautogui.press('q')
+    #            zeigefinger = 1
+    #else:
+    #    zeigefinger = 0
     if not (index or middle or ring or pinky or thumb):
         if faust == 0:
             pyautogui.press('e')
