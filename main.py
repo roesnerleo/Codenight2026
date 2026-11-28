@@ -1,20 +1,22 @@
 import cv2
 import mediapipe as mp
 import time
+import math
+import gesten
 
-# Inizialize Cam
+# Kamera starten
 cap = cv2.VideoCapture(0)
 
-# config MediaPipe
+# MediaPipe konfigurieren
 BaseOptions = mp.tasks.BaseOptions
 HandLandmarker = mp.tasks.vision.HandLandmarker
 HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
 
-# ModelPath
+# Pfad zum Modell
 MODEL_PATH = "models/hand_landmarker.task"
 
-# Connections between HandMarks
+# Verbindungen zwischen den Hand-Punkten (für die grünen Linien)
 CONNECTIONS = [
     (0, 1), (1, 2), (2, 3), (3, 4),
     (0, 5), (5, 6), (6, 7), (7, 8),
@@ -24,119 +26,71 @@ CONNECTIONS = [
     (0, 17)
 ]
 
-#Counter for detection over time
-counter = 0
 
-# Settings 
+
+# Einstellungen
 options = HandLandmarkerOptions(
-    base_options=BaseOptions(
-        model_asset_path=MODEL_PATH
-    ),
+    base_options=BaseOptions(model_asset_path=MODEL_PATH),
     running_mode=VisionRunningMode.VIDEO,
-    num_hands=2
+    num_hands=1
 )
 
-# start Tracking
+# Tracking starten
 with HandLandmarker.create_from_options(options) as landmarker:
 
     while True:
 
         success, frame = cap.read()
-
         if not success:
             break
 
-        # flip Image
+        # Bild spiegeln
         frame = cv2.flip(frame, 1)
 
-        # convert Colors from BGR zu RGB 
-        rgb_frame = cv2.cvtColor(
-            frame, cv2.COLOR_BGR2RGB
-        )
+        # Farben von BGR nach RGB
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # get MediaPipe-Image
-        mp_image = mp.Image(
-            image_format=mp.ImageFormat.SRGB,
-            data=rgb_frame
-        )
+        # MediaPipe-Bild erzeugen
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
 
-        # get Hands
+        # Hände erkennen
         timestamp_ms = int(time.monotonic() * 1000)
+        result = landmarker.detect_for_video(mp_image, timestamp_ms)
 
-        result = landmarker.detect_for_video(
-            mp_image,
-            timestamp_ms
-        )
-
-        # get results from Hands
+        # Ergebnisse auswerten
         if result.hand_landmarks:
 
-            for hand in result.hand_landmarks:
+            height, width, _ = frame.shape
 
-                height, width, _ = frame.shape
+            for n, hand in enumerate(result.hand_landmarks):
 
-                # get Coordinates from Marks
+                # Koordinaten in Pixel umrechnen
                 points = []
-
                 for landmark in hand:
-                    x = int(landmark.x * width)
-                    y = int(landmark.y * height)
-                    points.append((x, y))
+                    points.append((int(landmark.x * width), int(landmark.y * height)))
 
-                # draw Connections
+                # Verbindungen zeichnen
                 for start, end in CONNECTIONS:
-                    cv2.line(
-                        frame,
-                        points[start],
-                        points[end],
-                        (0, 255, 0),
-                        2
-                    )
+                    cv2.line(frame, points[start], points[end], (0, 255, 0), 2)
 
-                # Draw Marks
+                # Punkte zeichnen
                 for point in points:
-                    cv2.circle(
-                        frame,
-                        point,
-                        5,
-                        (0, 0, 255),
-                        -1
-                    )
+                    cv2.circle(frame, point, 5, (0, 0, 255), -1)
 
-        # show Image
+                # Geste erkennen und ins Bild schreiben
+                # (n * 40 sorgt dafür, dass bei zwei Händen die Texte untereinander stehen)
+                gesture = gesten.ddetect_gesture(hand)
+                print(gesture)
+                cv2.putText(frame, str(gesture), (10, 40 + n * 40),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+
+        # Bild anzeigen
         cv2.imshow("MediaPipe Hand Tracking", frame)
 
-        # ESC
+        # ESC beendet das Programm
         if cv2.waitKey(1) & 0xFF == 27:
             break
 
-
-        if result.hand_landmarks:
-
-            for hand in result.hand_landmarks:
-
-                # read Mark Coordinates
-                landmark = hand[0]
-        
-                print("X:", landmark.x)
-                print("Y:", landmark.y)
-
-            pass
-
-        else:
-
-            print("noHandFound")
-
-
-        # count
-        if counter < 10:
-            counter += 1
-        else: 
-            counter = 0
-
-        print(counter)
-
-
-# release resources
+# Aufräumen
 cap.release()
 cv2.destroyAllWindows()
