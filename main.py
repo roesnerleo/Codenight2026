@@ -79,10 +79,8 @@ with HandLandmarker.create_from_options(options) as landmarker:
 
                 # Geste erkennen und ins Bild schreiben
                 # (n * 40 sorgt dafür, dass bei zwei Händen die Texte untereinander stehen)
-                gesture = gesten.ddetect_gesture(hand)
-                print(gesture)
-                cv2.putText(frame, str(gesture), (10, 40 + n * 40),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+                gesten.detect_gesture(hand)
+
 
         # Bild anzeigen
         cv2.imshow("MediaPipe Hand Tracking", frame)
