@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import time
 import math
+import flick
 
 # Inizialize Cam
 cap = cv2.VideoCapture(0)
@@ -35,44 +36,7 @@ queue12 = [[0, 0],[0, 0]]
 # reset var for ready check
 ready = False
 
-# flick vars
-gate = 0.2
-flickUp = 0
-flickDown = 0
-FlickLeft = 0
-FlickRight = 0
 
-def flickcheck():
-    queue12[0] = queue12[1]
-    queue12[1] = [round(landmark.x, 3), round(landmark.y, 3)]
-    
-    xDif = queue12[0][0] - queue12[1][0]
-    yDif = queue12[0][1] - queue12[1][1]
-    
-    if yDif > gate:
-        flickUp = 1
-    else:
-        flickUp = 0
-    
-    if yDif < -gate:
-        flickDown = 1
-    else:
-        flickDown = 0
-    
-    if xDif > gate:
-        flickLeft = 1
-    else:
-        flickLeft = 0
-    
-    if xDif < -gate:
-        flickRight = 1
-    else:
-        flickRight = 0
-    
-    print("Up: " + str(flickUp))
-    print("Down: " + str(flickDown))
-    print("Left: " + str(flickLeft))
-    print("Right: " + str(flickRight))
                     
 
 # Settings 
@@ -169,7 +133,9 @@ with HandLandmarker.create_from_options(options) as landmarker:
 
                 if counter == 0:
 
-                    flickcheck()   
+                    queue12[0] = queue12[1]
+                    queue12[1] = [round(landmark.x, 3), round(landmark.y, 3)]
+                    flick.flickcheck(queue12)   
 
             pass
 
