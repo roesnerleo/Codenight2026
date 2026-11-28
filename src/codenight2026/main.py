@@ -3,6 +3,7 @@ import mediapipe as mp
 import time
 import math
 from . import flick
+from . import gesten
 
 # Inizialize Cam
 cap = cv2.VideoCapture(0)
@@ -114,6 +115,8 @@ with HandLandmarker.create_from_options(options) as landmarker:
                         (0, 0, 255),
                         -1
                     )
+
+        gesten.detect_gesture
 
         # show Image
         cv2.imshow("MediaPipe Hand Tracking", frame)
