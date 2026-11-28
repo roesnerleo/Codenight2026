@@ -118,9 +118,6 @@ with HandLandmarker.create_from_options(options) as landmarker:
         # show Image
         cv2.imshow("MediaPipe Hand Tracking", frame)
 
-        # ESC
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
 
 
         if result.hand_landmarks:
@@ -150,6 +147,15 @@ with HandLandmarker.create_from_options(options) as landmarker:
         else: 
             counter = 0
 
+        # ESC
+        if cv2.waitKey(1) & 0xFF == 27:
+            break
+
+        if cv2.getWindowProperty(
+            "MediaPipe Hand Tracking",
+            cv2.WND_PROP_VISIBLE
+        ) < 1:
+            break
 
 
 # release resources
